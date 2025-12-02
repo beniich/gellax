@@ -10,4 +10,10 @@ __pycache__/
 .venv/
 .idea/
 .vscode/
+.pytest_cache/
+src/gellax.egg-info/
+gellax.db
+*.egg-info/
+frontend/dist/
+frontend/.env.local
 
