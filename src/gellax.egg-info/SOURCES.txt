@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+src/gellax/__init__.py
+src/gellax/cli.py
+src/gellax/core.py
+src/gellax.egg-info/PKG-INFO
+src/gellax.egg-info/SOURCES.txt
+src/gellax.egg-info/dependency_links.txt
+src/gellax.egg-info/top_level.txt
+tests/test_core.py
