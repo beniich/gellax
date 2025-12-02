@@ -13,12 +13,15 @@ def setup_module(module):
 
 
 def test_create_and_get_product():
-    # create a user with manager role directly in db
-    from gellax.crud import create_user
+    # create a user with manager role directly in db using hashed password
+    from gellax import models
     from gellax.security import get_password_hash
     db_session = db.SessionLocal()
     try:
-        user = create_user(db_session, type("U", (), {"username": "mgr", "password": "pass", "role": "manager"}))
+        hashed = get_password_hash("pass")
+        u = models.User(username="mgr", hashed_password=hashed, role="manager")
+        db_session.add(u)
+        db_session.commit()
     finally:
         db_session.close()
 
