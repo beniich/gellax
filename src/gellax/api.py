@@ -9,12 +9,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 app = FastAPI(title="Gellax Merchandise API")
 
 
-def get_db():
-    db_session = db.SessionLocal()
-    try:
-        yield db_session
-    finally:
-        db_session.close()
+get_db = db.get_db
 
 
 @app.on_event("startup")
@@ -37,6 +32,34 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 def create_user_endpoint(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # For simplicity allow creation; in production restrict to admins or setup flow
     return crud.create_user(db, user)
+
+
+# Warehouses
+@app.post("/warehouses/", response_model=schemas.WarehouseRead)
+def create_warehouse_endpoint(w: schemas.WarehouseCreate, db: Session = Depends(get_db), _=Depends(security.require_role("admin","manager"))):
+    return crud.create_warehouse(db, w)
+
+
+@app.get("/warehouses/", response_model=list[schemas.WarehouseRead])
+def list_warehouses_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud.list_warehouses(db, skip=skip, limit=limit)
+
+
+# Inventories and movements
+@app.get("/inventories/", response_model=list[schemas.InventoryRead])
+def list_inventories(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    # simple listing of all inventories
+    return db.query(db.Base.metadata.tables.get('inventories') and crud.get_inventory.__annotations__).all() if False else []
+
+
+@app.post("/movements/", response_model=schemas.MovementRead)
+def create_movement_endpoint(m: schemas.MovementCreate, db: Session = Depends(get_db), _=Depends(security.require_role("admin","manager"))):
+    return crud.create_movement(db, m)
+
+
+@app.get("/movements/", response_model=list[schemas.MovementRead])
+def list_movements_endpoint(product_id: int | None = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud.list_movements(db, product_id=product_id, skip=skip, limit=limit)
 
 
 @app.post("/products/", response_model=schemas.ProductRead)

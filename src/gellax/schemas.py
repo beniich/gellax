@@ -36,6 +36,56 @@ class ProductRead(BaseModel):
         orm_mode = True
 
 
+class WarehouseCreate(BaseModel):
+    name: str
+    location: Optional[str] = None
+
+
+class WarehouseRead(BaseModel):
+    id: int
+    name: str
+    location: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
+class InventoryCreate(BaseModel):
+    product_id: int
+    warehouse_id: int
+    quantity: int
+
+
+class InventoryRead(BaseModel):
+    id: int
+    product_id: int
+    warehouse_id: int
+    quantity: int
+
+    class Config:
+        orm_mode = True
+
+
+class MovementCreate(BaseModel):
+    product_id: int
+    from_warehouse_id: Optional[int] = None
+    to_warehouse_id: Optional[int] = None
+    quantity: int
+    note: Optional[str] = None
+
+
+class MovementRead(BaseModel):
+    id: int
+    product_id: int
+    from_warehouse_id: Optional[int]
+    to_warehouse_id: Optional[int]
+    quantity: int
+    note: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
 class UserCreate(BaseModel):
     username: str
     password: str

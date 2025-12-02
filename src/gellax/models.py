@@ -36,5 +36,25 @@ class Inventory(Base):
     __tablename__ = "inventories"
     id = Column(Integer, primary_key=True, index=True)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
-    location = Column(String(200), nullable=True)
+    warehouse_id = Column(Integer, ForeignKey("warehouses.id"), nullable=False)
     quantity = Column(Integer, nullable=False, default=0)
+    product = relationship("Product")
+    warehouse = relationship("Warehouse", back_populates="inventories")
+
+
+class Warehouse(Base):
+    __tablename__ = "warehouses"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), unique=True, nullable=False)
+    location = Column(String(200), nullable=True)
+    inventories = relationship("Inventory", back_populates="warehouse")
+
+
+class InventoryMovement(Base):
+    __tablename__ = "inventory_movements"
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    from_warehouse_id = Column(Integer, ForeignKey("warehouses.id"), nullable=True)
+    to_warehouse_id = Column(Integer, ForeignKey("warehouses.id"), nullable=True)
+    quantity = Column(Integer, nullable=False)
+    note = Column(Text, nullable=True)

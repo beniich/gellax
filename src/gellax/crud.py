@@ -63,3 +63,68 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
 def get_user_by_username(db: Session, username: str) -> Optional[models.User]:
     return db.query(models.User).filter(models.User.username == username).first()
 
+
+def create_warehouse(db: Session, w: schemas.WarehouseCreate) -> models.Warehouse:
+    db_w = models.Warehouse(name=w.name, location=w.location)
+    db.add(db_w)
+    db.commit()
+    db.refresh(db_w)
+    return db_w
+
+
+def get_warehouse(db: Session, warehouse_id: int) -> Optional[models.Warehouse]:
+    return db.query(models.Warehouse).filter(models.Warehouse.id == warehouse_id).first()
+
+
+def list_warehouses(db: Session, skip: int = 0, limit: int = 100) -> list[models.Warehouse]:
+    return db.query(models.Warehouse).offset(skip).limit(limit).all()
+
+
+def get_inventory(db: Session, product_id: int, warehouse_id: int) -> Optional[models.Inventory]:
+    return (
+        db.query(models.Inventory)
+        .filter(models.Inventory.product_id == product_id, models.Inventory.warehouse_id == warehouse_id)
+        .first()
+    )
+
+
+def create_or_adjust_inventory(db: Session, product_id: int, warehouse_id: int, quantity: int) -> models.Inventory:
+    inv = get_inventory(db, product_id, warehouse_id)
+    if inv:
+        inv.quantity = inv.quantity + quantity
+        db.add(inv)
+        db.commit()
+        db.refresh(inv)
+        return inv
+    inv = models.Inventory(product_id=product_id, warehouse_id=warehouse_id, quantity=quantity)
+    db.add(inv)
+    db.commit()
+    db.refresh(inv)
+    return inv
+
+
+def create_movement(db: Session, m: schemas.MovementCreate) -> models.InventoryMovement:
+    mv = models.InventoryMovement(
+        product_id=m.product_id,
+        from_warehouse_id=m.from_warehouse_id,
+        to_warehouse_id=m.to_warehouse_id,
+        quantity=m.quantity,
+        note=m.note,
+    )
+    db.add(mv)
+    # apply inventory changes
+    if m.from_warehouse_id:
+        create_or_adjust_inventory(db, m.product_id, m.from_warehouse_id, -m.quantity)
+    if m.to_warehouse_id:
+        create_or_adjust_inventory(db, m.product_id, m.to_warehouse_id, m.quantity)
+    db.commit()
+    db.refresh(mv)
+    return mv
+
+
+def list_movements(db: Session, product_id: Optional[int] = None, skip: int = 0, limit: int = 100) -> list[models.InventoryMovement]:
+    q = db.query(models.InventoryMovement)
+    if product_id:
+        q = q.filter(models.InventoryMovement.product_id == product_id)
+    return q.offset(skip).limit(limit).all()
+
