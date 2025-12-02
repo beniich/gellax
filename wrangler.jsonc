@@ -1,5 +1,5 @@
 {
-  "name": "gellax",
+  "name": "gellaa",
   "main": "src/index.ts",
   "build": {
       "command": "npm run build"
