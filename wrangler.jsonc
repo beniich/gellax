@@ -1,0 +1,46 @@
+{
+  "name": "gellax-api",
+  "type": "javascript",
+  "compatibility_date": "2025-12-02",
+  "main": "src/worker.js",
+  "build": {
+    "command": "npm run build",
+    "cwd": "./frontend",
+    "watch_paths": ["frontend/src/**/*.jsx"]
+  },
+  "routes": [
+    {
+      "pattern": "/api/*",
+      "zone_name": "example.com"
+    }
+  ],
+  "env": {
+    "production": {
+      "route": "api.gellax.com/*",
+      "zone_id": "your-zone-id"
+    },
+    "staging": {
+      "route": "staging-api.gellax.com/*",
+      "zone_id": "your-zone-id"
+    }
+  },
+  "vars": {
+    "ENVIRONMENT": "production",
+    "API_VERSION": "1.0"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "your-kv-namespace-id"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "gellax-files"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

@@ -132,11 +132,46 @@ heroku create gellax-app
 git push heroku main
 ```
 
+## ☁️ Cloudflare Workers
+
+Deploy sur Cloudflare Workers pour une edge deployment gratuite et performante :
+
+```bash
+# Install wrangler CLI
+npm install -g wrangler
+
+# Authenticate with Cloudflare
+wrangler login
+
+# Deploy
+wrangler deploy
+```
+
+**Configuration** :
+- Fichier `wrangler.jsonc` définit les paramètres de déploiement
+- `src/worker.js` : Worker script qui proxy les requêtes API et sert le frontend
+- Variables d'environnement configurable dans `wrangler.jsonc`
+
+**Points clés** :
+- CORS automatique sur toutes les réponses API
+- Routes séparées pour API (`/api/*`) et assets statiques
+- KV Namespace disponible pour le caching
+- R2 Bucket pour le stockage de fichiers
+- Observabilité/monitoring activé par défaut
+
+**Configuration pour production** :
+```json
+{
+  "route": "api.gellax.com/*",
+  "zone_id": "your-cloudflare-zone-id"
+}
+```
+
 ## 📝 Notes
 
 - Base de données : SQLite par défaut (fichier `gellax.db`). Pour production, utiliser PostgreSQL.
 - Secret JWT : à changer dans `src/gellax/security.py` (variable `SECRET_KEY`).
-- CORS : actuellement désactivé. À ajouter si frontend/backend sur domaines différents.
+- CORS : configuré automatiquement sur Cloudflare Workers ; à ajouter si frontend/backend sur domaines différents.
 
 ## 📞 Support
 
